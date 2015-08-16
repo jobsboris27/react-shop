@@ -6987,10 +6987,18 @@ a {
 .modal-footer:after {
   clear: both;
 }
+.list-group .hiddedCart {
+  display: none;
+}
+.list-group div {
+  margin-bottom: 10px;
+}
 .products__item {
   *zoom: expression(this.runtimeStyle.zoom='1', this.appendChild(document.createElement('br')).style.cssText='clear:both;font:0/0 serif');
   zoom: 1 !ie;
+  position: relative;
   margin-bottom: 10px;
+  z-index: 3;
 }
 .products__item:before,
 .products__item:after {
@@ -7031,6 +7039,15 @@ a {
 .products__link_add {
   float: right;
 }
+.cartCounter {
+  text-align: right;
+}
+.badge {
+  margin-left: 10px;
+}
 .wrapper {
   padding-top: 20px;
+}
+.container {
+  position: relative;
 }

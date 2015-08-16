@@ -6,7 +6,7 @@ export default class Product extends React.Component {
     constructor() {
         super();
         this.state = {
-          addCart: false
+            addCart: false
         };
     }
 
@@ -29,7 +29,7 @@ export default class Product extends React.Component {
             productTemplate =
                 <li className='list-group-item products__item'>
                     <a href={`#product/${product.id}`} refs={product.id} className="products__link">{product.name}</a>
-                    <a href="#" onClick={this.handleAddToCart.bind(this, product.id)} className="btn btn-success products__link_add">Add to cart</a>
+                    <a href="#" onClick={this.handleAddToCart.bind(this, product.id)} className="btn btn-success products__link_add">Addto cart</a>
                 </li>;
         } else {
             productTemplate = undefined;
