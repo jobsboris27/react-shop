@@ -2,9 +2,19 @@
 .products{
 
 }
+.list-group{
+  .hiddedCart{
+    display: none;
+  }
+  div{
+    margin-bottom:10px;
+  }
+}
 .products__item{
   .clearfix;
+  position: relative;
   margin-bottom: 10px;
+  z-index: 3;
 }
 .products__link{
   float: left;
@@ -12,4 +22,10 @@
 }
 .products__link_add{
   float: right;
+}
+.cartCounter{
+  text-align: right;
+}
+.badge{
+  margin-left: 10px;
 }

@@ -23623,14 +23623,19 @@
 
 	var _pageProductsPageJs2 = _interopRequireDefault(_pageProductsPageJs);
 
-	var _componentsAppJs = __webpack_require__(240);
+	var _pageProductPageJs = __webpack_require__(244);
+
+	var _pageProductPageJs2 = _interopRequireDefault(_pageProductPageJs);
+
+	var _componentsAppJs = __webpack_require__(245);
 
 	var _componentsAppJs2 = _interopRequireDefault(_componentsAppJs);
 
 	var routes = _react2['default'].createElement(
 	    _reactRouter.Route,
 	    { handler: _componentsAppJs2['default'] },
-	    _react2['default'].createElement(_reactRouter.Route, { path: '/', handler: _pageProductsPageJs2['default'] })
+	    _react2['default'].createElement(_reactRouter.Route, { path: '/', handler: _pageProductsPageJs2['default'] }),
+	    _react2['default'].createElement(_reactRouter.Route, { path: '/product:id', handler: _pageProductPageJs2['default'] })
 	);
 
 	exports['default'] = routes;
@@ -23668,13 +23673,21 @@
 
 	var _storeProductsStoreJs2 = _interopRequireDefault(_storeProductsStoreJs);
 
-	var _actionsProductsActionsJs = __webpack_require__(237);
+	var _storeCartStoreJs = __webpack_require__(237);
+
+	var _storeCartStoreJs2 = _interopRequireDefault(_storeCartStoreJs);
+
+	var _actionsProductsActionsJs = __webpack_require__(239);
 
 	var _actionsProductsActionsJs2 = _interopRequireDefault(_actionsProductsActionsJs);
 
-	var _pageComponentsProductProductJs = __webpack_require__(239);
+	var _pageComponentsProductProductJs = __webpack_require__(241);
 
 	var _pageComponentsProductProductJs2 = _interopRequireDefault(_pageComponentsProductProductJs);
+
+	var _pageComponentsCartItemCartCounterJs = __webpack_require__(243);
+
+	var _pageComponentsCartItemCartCounterJs2 = _interopRequireDefault(_pageComponentsCartItemCartCounterJs);
 
 	var ProductsPage = (function (_React$Component) {
 	    _inherits(ProductsPage, _React$Component);
@@ -23684,22 +23697,26 @@
 
 	        _get(Object.getPrototypeOf(ProductsPage.prototype), 'constructor', this).call(this);
 	        this.state = {
-	            products: []
+	            products: [],
+	            cart: undefined
 	        };
 
-	        this._onEventListChangeListener = this._onNewsLoaded.bind(this);
+	        this._onEventListChangeListener = this._onProductsLoaded.bind(this);
+	        this._onEventListChangeListenerCart = this._onCartProductsLoaded.bind(this);
 	    }
 
 	    _createClass(ProductsPage, [{
 	        key: 'componentWillMount',
 	        value: function componentWillMount() {
 	            _storeProductsStoreJs2['default'].addChangeListener(this._onEventListChangeListener);
+	            _storeCartStoreJs2['default'].addChangeListener(this._onEventListChangeListenerCart);
 	            _actionsProductsActionsJs2['default'].loadProducts();
 	        }
 	    }, {
 	        key: 'componentWillUnmount',
 	        value: function componentWillUnmount() {
 	            _storeProductsStoreJs2['default'].removeChangeListener(this._onEventListChangeListener);
+	            _storeCartStoreJs2['default'].removeChangeListener(this._onEventListChangeListenerCart);
 	        }
 	    }, {
 	        key: 'render',
@@ -23721,14 +23738,26 @@
 	                        { className: 'list-group' },
 	                        productTemplate
 	                    )
+	                ),
+	                _react2['default'].createElement(
+	                    'div',
+	                    { className: 'col-md-6 cartCounter' },
+	                    _react2['default'].createElement(_pageComponentsCartItemCartCounterJs2['default'], { cartCounter: this.state.cart })
 	                )
 	            );
 	        }
 	    }, {
-	        key: '_onNewsLoaded',
-	        value: function _onNewsLoaded() {
+	        key: '_onProductsLoaded',
+	        value: function _onProductsLoaded() {
 	            this.setState({
 	                products: _storeProductsStoreJs2['default'].getPoducts()
+	            });
+	        }
+	    }, {
+	        key: '_onCartProductsLoaded',
+	        value: function _onCartProductsLoaded() {
+	            this.setState({
+	                cart: _storeCartStoreJs2['default'].getCartPoducts()
 	            });
 	        }
 	    }]);
@@ -25080,6 +25109,120 @@
 
 	'use strict';
 
+	var _get = __webpack_require__(200)['default'];
+
+	var _inherits = __webpack_require__(214)['default'];
+
+	var _createClass = __webpack_require__(224)['default'];
+
+	var _classCallCheck = __webpack_require__(227)['default'];
+
+	var _interopRequireDefault = __webpack_require__(1)['default'];
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _events = __webpack_require__(230);
+
+	var _dispatcherAppDispatcherJs = __webpack_require__(231);
+
+	var _dispatcherAppDispatcherJs2 = _interopRequireDefault(_dispatcherAppDispatcherJs);
+
+	var _constantsCartConstantsJs = __webpack_require__(238);
+
+	var CHANGE_EVENT = 'CHANGE_EVENT';
+	var _cartProducts = [];
+
+	function addToCartProductByIdAsync(cartProducts) {
+
+	    return _cartProducts.push(cartProducts);
+	}
+
+	var CartStore = (function (_EventEmitter) {
+	    _inherits(CartStore, _EventEmitter);
+
+	    function CartStore() {
+	        _classCallCheck(this, CartStore);
+
+	        _get(Object.getPrototypeOf(CartStore.prototype), 'constructor', this).apply(this, arguments);
+	    }
+
+	    _createClass(CartStore, [{
+	        key: 'emitChange',
+	        value: function emitChange() {
+	            this.emit(CHANGE_EVENT);
+	        }
+	    }, {
+	        key: 'addChangeListener',
+	        value: function addChangeListener(callback) {
+	            this.on(CHANGE_EVENT, callback);
+	        }
+	    }, {
+	        key: 'removeChangeListener',
+	        value: function removeChangeListener(callback) {
+	            this.removeListener(CHANGE_EVENT, callback);
+	        }
+	    }, {
+	        key: 'getCartPoducts',
+	        value: function getCartPoducts() {
+	            return _cartProducts;
+	        }
+	    }]);
+
+	    return CartStore;
+	})(_events.EventEmitter);
+
+	var store = new CartStore();
+
+	_dispatcherAppDispatcherJs2['default'].register(function (payload) {
+
+	    switch (payload.type) {
+
+	        case _constantsCartConstantsJs.ADD_PRODUCT_BY_ID:
+	            addToCartProductByIdAsync(payload.productCart);
+	            store.emitChange();
+	            break;
+
+	        case _constantsCartConstantsJs.DELETE_PRODUCT_BY_ID:
+	            loadProductsAsync(payload.products);
+	            store.emitChange();
+	            break;
+
+	    }
+	});
+
+	exports['default'] = store;
+	module.exports = exports['default'];
+
+/***/ },
+/* 238 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _interopRequireDefault = __webpack_require__(1)['default'];
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _keymirror = __webpack_require__(236);
+
+	var _keymirror2 = _interopRequireDefault(_keymirror);
+
+	exports['default'] = (0, _keymirror2['default'])({
+	    ADD_PRODUCT_BY_ID: null,
+	    DELETE_PRODUCT_BY_ID: null
+	});
+	module.exports = exports['default'];
+
+/***/ },
+/* 239 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
 	var _interopRequireDefault = __webpack_require__(1)['default'];
 
 	Object.defineProperty(exports, '__esModule', {
@@ -25092,7 +25235,7 @@
 
 	var _dispatcherAppDispatcherJs2 = _interopRequireDefault(_dispatcherAppDispatcherJs);
 
-	var _dataProductDataJs = __webpack_require__(238);
+	var _dataProductDataJs = __webpack_require__(240);
 
 	var _dataProductDataJs2 = _interopRequireDefault(_dataProductDataJs);
 
@@ -25108,7 +25251,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 238 */
+/* 240 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -25144,26 +25287,27 @@
 	if (localStorage.getItem('products')) {
 	    ProductData = JSON.parse(localStorage.getItem('products'));
 	}
+
 	exports['default'] = ProductData;
 	module.exports = exports['default'];
 
 /***/ },
-/* 239 */
+/* 241 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
-	var _get = __webpack_require__(200)["default"];
+	var _get = __webpack_require__(200)['default'];
 
-	var _inherits = __webpack_require__(214)["default"];
+	var _inherits = __webpack_require__(214)['default'];
 
-	var _createClass = __webpack_require__(224)["default"];
+	var _createClass = __webpack_require__(224)['default'];
 
-	var _classCallCheck = __webpack_require__(227)["default"];
+	var _classCallCheck = __webpack_require__(227)['default'];
 
-	var _interopRequireDefault = __webpack_require__(1)["default"];
+	var _interopRequireDefault = __webpack_require__(1)['default'];
 
-	Object.defineProperty(exports, "__esModule", {
+	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
 
@@ -25171,52 +25315,293 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _storeCartStoreJs = __webpack_require__(237);
+
+	var _storeCartStoreJs2 = _interopRequireDefault(_storeCartStoreJs);
+
+	var _actionsCartActionsJs = __webpack_require__(242);
+
+	var _actionsCartActionsJs2 = _interopRequireDefault(_actionsCartActionsJs);
+
 	var Product = (function (_React$Component) {
 	    _inherits(Product, _React$Component);
 
 	    function Product() {
+	        var _this = this;
+
 	        _classCallCheck(this, Product);
 
-	        _get(Object.getPrototypeOf(Product.prototype), "constructor", this).call(this);
+	        _get(Object.getPrototypeOf(Product.prototype), 'constructor', this).call(this);
 
 	        this.handleAddToCart = function (productId, e) {
 	            e.preventDefault();
-	            console.log(productId);
+
+	            _this.setState({
+	                addCart: true
+	            });
+
+	            _actionsCartActionsJs2['default'].addProductToCartById(productId);
+	        };
+
+	        this.state = {
+	            addCart: false
 	        };
 	    }
 
 	    _createClass(Product, [{
-	        key: "render",
+	        key: 'render',
 	        value: function render() {
 	            var product = this.props.product;
 
-	            console.log(product);
+	            var addCartState = this.state.addCart;
+	            var productTemplate = undefined;
 
-	            return _react2["default"].createElement(
-	                "li",
-	                { className: "list-group-item products__item" },
-	                _react2["default"].createElement(
-	                    "a",
-	                    { href: "product/" + product.id, refs: product.id, className: "products__link" },
-	                    product.name
-	                ),
-	                _react2["default"].createElement(
-	                    "a",
-	                    { href: "#", onClick: this.handleAddToCart.bind(this, product.id), className: "btn btn-success products__link_add" },
-	                    "Add to cart"
-	                )
+	            if (!addCartState) {
+	                productTemplate = _react2['default'].createElement(
+	                    'li',
+	                    { className: 'list-group-item products__item' },
+	                    _react2['default'].createElement(
+	                        'a',
+	                        { href: '#product/' + product.id, refs: product.id, className: 'products__link' },
+	                        product.name
+	                    ),
+	                    _react2['default'].createElement(
+	                        'a',
+	                        { href: '#', onClick: this.handleAddToCart.bind(this, product.id), className: 'btn btn-success products__link_add' },
+	                        'Add to cart'
+	                    )
+	                );
+	            } else {
+	                productTemplate = undefined;
+	            }
+
+	            return _react2['default'].createElement(
+	                'div',
+	                null,
+	                productTemplate
 	            );
 	        }
 	    }]);
 
 	    return Product;
-	})(_react2["default"].Component);
+	})(_react2['default'].Component);
 
-	exports["default"] = Product;
-	module.exports = exports["default"];
+	exports['default'] = Product;
+	module.exports = exports['default'];
 
 /***/ },
-/* 240 */
+/* 242 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _interopRequireDefault = __webpack_require__(1)['default'];
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _constantsCartConstantsJs = __webpack_require__(238);
+
+	var _dispatcherAppDispatcherJs = __webpack_require__(231);
+
+	var _dispatcherAppDispatcherJs2 = _interopRequireDefault(_dispatcherAppDispatcherJs);
+
+	var _dataProductDataJs = __webpack_require__(240);
+
+	var _dataProductDataJs2 = _interopRequireDefault(_dataProductDataJs);
+
+	exports['default'] = {
+	    addProductToCartById: function addProductToCartById(id) {
+	        var productCart = _dataProductDataJs2['default'];
+	        var poductId = id;
+
+	        var cartProduct = productCart[poductId - 1];
+	        console.log(cartProduct);
+	        if (cartProduct) {
+	            _dispatcherAppDispatcherJs2['default'].dispatch({
+	                type: _constantsCartConstantsJs.ADD_PRODUCT_BY_ID,
+	                productCart: cartProduct
+	            });
+	        }
+	    },
+	    deleteProductToCartById: function deleteProductToCartById(id) {
+	        var productCart = _dataProductDataJs2['default'];
+	        _dispatcherAppDispatcherJs2['default'].dispatch({
+	            type: _constantsCartConstantsJs.DELETE_PRODUCT_BY_ID,
+	            productCart: cartProduct
+	        });
+	    }
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 243 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _get = __webpack_require__(200)['default'];
+
+	var _inherits = __webpack_require__(214)['default'];
+
+	var _createClass = __webpack_require__(224)['default'];
+
+	var _classCallCheck = __webpack_require__(227)['default'];
+
+	var _interopRequireDefault = __webpack_require__(1)['default'];
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var CartCounter = (function (_React$Component) {
+	    _inherits(CartCounter, _React$Component);
+
+	    function CartCounter() {
+	        _classCallCheck(this, CartCounter);
+
+	        _get(Object.getPrototypeOf(CartCounter.prototype), 'constructor', this).call(this);
+	    }
+
+	    _createClass(CartCounter, [{
+	        key: 'render',
+	        value: function render() {
+	            var cartCounter = this.props.cartCounter;
+
+	            console.log(cartCounter);
+	            var cartLenght = cartCounter ? cartCounter.length : 'Пустая корзина';
+	            return _react2['default'].createElement(
+	                'a',
+	                { href: '#cart', className: 'btn btn-primary' },
+	                _react2['default'].createElement('i', { className: 'glyphicon glyphicon-shopping-cart' }),
+	                _react2['default'].createElement(
+	                    'span',
+	                    { className: 'badge' },
+	                    cartLenght
+	                )
+	            );
+	        }
+	    }]);
+
+	    return CartCounter;
+	})(_react2['default'].Component);
+
+	exports['default'] = CartCounter;
+	module.exports = exports['default'];
+
+/***/ },
+/* 244 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _get = __webpack_require__(200)['default'];
+
+	var _inherits = __webpack_require__(214)['default'];
+
+	var _createClass = __webpack_require__(224)['default'];
+
+	var _classCallCheck = __webpack_require__(227)['default'];
+
+	var _interopRequireDefault = __webpack_require__(1)['default'];
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _pageComponentsLayoutLayoutJs = __webpack_require__(228);
+
+	var _pageComponentsLayoutLayoutJs2 = _interopRequireDefault(_pageComponentsLayoutLayoutJs);
+
+	var _storeProductsStoreJs = __webpack_require__(229);
+
+	var _storeProductsStoreJs2 = _interopRequireDefault(_storeProductsStoreJs);
+
+	var _storeCartStoreJs = __webpack_require__(237);
+
+	var _storeCartStoreJs2 = _interopRequireDefault(_storeCartStoreJs);
+
+	var _actionsProductsActionsJs = __webpack_require__(239);
+
+	var _actionsProductsActionsJs2 = _interopRequireDefault(_actionsProductsActionsJs);
+
+	var _pageComponentsProductProductJs = __webpack_require__(241);
+
+	var _pageComponentsProductProductJs2 = _interopRequireDefault(_pageComponentsProductProductJs);
+
+	var ProductsPage = (function (_React$Component) {
+	    _inherits(ProductsPage, _React$Component);
+
+	    function ProductsPage() {
+	        _classCallCheck(this, ProductsPage);
+
+	        _get(Object.getPrototypeOf(ProductsPage.prototype), 'constructor', this).call(this);
+	        this.state = {
+	            products: [],
+	            cart: undefined
+	        };
+
+	        this._onEventListChangeListener = this._onProductsLoaded.bind(this);
+	        this._onEventListChangeListenerCart = this._onCartProductsLoaded.bind(this);
+	    }
+
+	    _createClass(ProductsPage, [{
+	        key: 'componentWillMount',
+	        value: function componentWillMount() {
+	            _storeProductsStoreJs2['default'].addChangeListener(this._onEventListChangeListener);
+	            _storeCartStoreJs2['default'].addChangeListener(this._onEventListChangeListenerCart);
+	            _actionsProductsActionsJs2['default'].loadProducts();
+	        }
+	    }, {
+	        key: 'componentWillUnmount',
+	        value: function componentWillUnmount() {
+	            _storeProductsStoreJs2['default'].removeChangeListener(this._onEventListChangeListener);
+	            _storeCartStoreJs2['default'].removeChangeListener(this._onEventListChangeListenerCart);
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {
+	            var products = this.state.products;
+
+	            return _react2['default'].createElement(
+	                _pageComponentsLayoutLayoutJs2['default'],
+	                null,
+	                _react2['default'].createElement('div', { className: 'col-md-12' })
+	            );
+	        }
+	    }, {
+	        key: '_onProductsLoaded',
+	        value: function _onProductsLoaded() {
+	            this.setState({
+	                products: _storeProductsStoreJs2['default'].getPoducts()
+	            });
+	        }
+	    }, {
+	        key: '_onCartProductsLoaded',
+	        value: function _onCartProductsLoaded() {
+	            this.setState({
+	                cart: _storeCartStoreJs2['default'].getCartPoducts()
+	            });
+	        }
+	    }]);
+
+	    return ProductsPage;
+	})(_react2['default'].Component);
+
+	exports['default'] = ProductsPage;
+	module.exports = exports['default'];
+
+/***/ },
+/* 245 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';

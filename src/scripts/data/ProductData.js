@@ -32,5 +32,6 @@ localStorage.setItem( 'products', JSON.stringify(products) );
 if (localStorage.getItem( 'products' )) {
     ProductData = JSON.parse(localStorage.getItem( 'products' ));
 }
+
 export default ProductData;
 
